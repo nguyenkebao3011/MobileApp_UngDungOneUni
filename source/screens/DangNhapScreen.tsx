@@ -15,9 +15,26 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../App';
 import Icon from 'react-native-vector-icons/Fontisto';
+import {dsSinhVien} from '../components/Class/SinhVien';
 type NavigationProp = StackNavigationProp<RootStackParamList, 'DangNhap'>;
+export let masinhvien = '';
 const DangNhapScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const checkTK = () => {
+    const user = dsSinhVien.find(
+      u => u.MaSV === username && u.MatKhauDN === password,
+    );
+    if (user) {
+      Alert.alert('Đăng nhập thành công');
+      masinhvien = username;
+      navigation.navigate('Main');
+    } else {
+      Alert.alert('Kiểm tra lại thông tin');
+    }
+  };
+
   return (
     <ImageBackground
       source={require('../assets/loginbkg-2.png')}
@@ -40,8 +57,8 @@ const DangNhapScreen = () => {
               style={styles.input}
               placeholder="Nhập tài khoản"
               placeholderTextColor="#ccc"
-              // value={TaiKhoanDangNhap}
-              // onChangeText={setUsername}
+              value={username}
+              onChangeText={setUsername}
             />
           </View>
 
@@ -53,15 +70,15 @@ const DangNhapScreen = () => {
               placeholder="Nhập mật khẩu"
               placeholderTextColor="#ccc"
               secureTextEntry
-              // value={MatKhau}
-              // onChangeText={setPassword}
+              value={password}
+              onChangeText={setPassword}
             />
           </View>
           {/* Nút đăng nhập */}
           <TouchableOpacity
             style={styles.btn}
             onPress={() => {
-              navigation.replace('Main');
+              checkTK();
             }}>
             <Text style={styles.btnText}>ĐĂNG NHẬP</Text>
           </TouchableOpacity>

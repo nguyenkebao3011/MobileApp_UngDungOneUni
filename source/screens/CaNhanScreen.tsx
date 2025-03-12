@@ -13,6 +13,8 @@ import {RootStackParamList} from '../../App';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ChucNang} from '../components/Class/ChucNang';
+import {dsSinhVien} from '../components/Class/SinhVien';
+import {masinhvien} from './DangNhapScreen';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -27,24 +29,57 @@ const CaNhanScreen = () => {
       'id-card',
       'ThongTinSV',
       'caret-forward',
+      '#4e8cda',
     ),
-    new ChucNang(2, 'Đổi mật khẩu', 'time', 'DoiMatKhau', 'caret-forward'),
+    new ChucNang(
+      2,
+      'Đổi mật khẩu',
+      'time',
+      'DoiMatKhau',
+      'caret-forward',
+      '#1c80eb',
+    ),
     new ChucNang(
       3,
       'Điều khoản và chính sách ứng dụng',
       'document-text',
       'DieuKhoan',
       'caret-forward',
+      '#957dec',
     ),
-    new ChucNang(4, 'Góp ý ứng dụng', 'mail', 'GopY', 'caret-forward'),
-    new ChucNang(5, 'Thông Báo', 'notifications', '', 'notification'),
-    new ChucNang(6, 'Đăng xuất', 'log-out', 'DangNhap', 'caret-forward'),
+    new ChucNang(
+      4,
+      'Góp ý ứng dụng',
+      'mail',
+      'GopY',
+      'caret-forward',
+      '#f38960',
+    ),
+    new ChucNang(
+      5,
+      'Thông Báo',
+      'notifications',
+      '',
+      'notification',
+      '#435262',
+    ),
+    new ChucNang(
+      6,
+      'Đăng xuất',
+      'log-out',
+      'DangNhap',
+      'caret-forward',
+      '#e7303b',
+    ),
   ];
-
+  const hoten = dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || '';
   return (
     <SafeAreaView style={styles.container}>
       {/* Mảng xanh phía trên */}
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon style={styles.iconback} name="arrow-back-outline"></Icon>
+        </TouchableOpacity>
         <Text
           style={{
             marginLeft: 30,
@@ -53,10 +88,10 @@ const CaNhanScreen = () => {
             marginTop: 35,
             fontWeight: 'bold',
           }}>
-          Nguyễn Kế Bảo
+          {hoten}
         </Text>
         <Text style={{marginLeft: 30, fontSize: 18, color: 'white'}}>
-          MSSV:2001215616
+          MSSV: {masinhvien}
         </Text>
       </View>
       <View style={styles.list}>
@@ -68,7 +103,7 @@ const CaNhanScreen = () => {
               navigation.navigate(item.screen as keyof RootStackParamList)
             }>
             <View style={[styles.iconContainer]}>
-              <Icon name={item.icon} size={30} color="blue" />
+              <Icon name={item.icon} size={30} color={item.color} />
             </View>
             <Text style={styles.label}>{item.name}</Text>
 
@@ -76,8 +111,7 @@ const CaNhanScreen = () => {
             {item.id === 5 ? (
               <Switch
                 style={styles.icon2}
-                trackColor={{false: '#767577', true: '#81b0ff'}}
-                thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+                trackColor={{false: '#767577', true: '#38c056'}}
                 onValueChange={toggleSwitch}
                 value={isEnabled}
               />
@@ -102,12 +136,11 @@ const styles = StyleSheet.create({
     paddingTop: 40, // Đẩy nội dung xuống dưới để tránh trùng vào viền trên
   },
   header: {
-    backgroundColor: '#0C74A2',
+    backgroundColor: '#0064e0',
     top: 0,
     left: 0,
     right: 0,
     bottom: '90%',
-    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 40,
     position: 'absolute',
   },
   list: {
@@ -134,7 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 20, // Tạo hình tròn
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#D5D5D5',
+    backgroundColor: '#f6f6ff',
   },
   label: {
     fontSize: 16,
@@ -146,5 +179,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     color: '#3D3D3D',
+  },
+  iconback: {
+    marginTop: 40,
+    fontSize: 25,
+    color: 'white',
+    marginLeft: 20,
   },
 });

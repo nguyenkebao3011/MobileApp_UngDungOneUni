@@ -9,6 +9,7 @@ import DoiMatKhau from './source/screens/DoiMatKhau';
 import DieuKhoan from './source/screens/DieuKhoan';
 import GopY from './source/screens/GopY';
 import LichHocScreen from './source/screens/LichHocScreen';
+import DiemDanhScreen from './source/screens/DiemDanhScreen';
 
 export type RootStackParamList = {
   DangNhap: undefined;
@@ -18,10 +19,11 @@ export type RootStackParamList = {
   ThongKe: undefined;
   ThanhToan: undefined;
   ThanhTich: undefined;
-  ThongTinSV: undefined; // Thêm vào đây
+  ThongTinSV: undefined;
   DoiMatKhau: undefined;
   DieuKhoan: undefined;
   GopY: undefined;
+  DiemDanh: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -40,6 +42,7 @@ const App = () => {
           <Stack.Screen name="DieuKhoan" component={DieuKhoan} />
           <Stack.Screen name="GopY" component={GopY} />
           <Stack.Screen name="LichHoc" component={LichHocScreen} />
+          <Stack.Screen name="DiemDanh" component={DiemDanhScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

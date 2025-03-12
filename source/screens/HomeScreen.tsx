@@ -14,6 +14,8 @@ import {ChucNang} from '../components/Class/ChucNang';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
+import {masinhvien} from './DangNhapScreen';
+import {dsSinhVien} from '../components/Class/SinhVien';
 
 const Tab = createBottomTabNavigator();
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
@@ -33,7 +35,7 @@ const Home = () => {
       9,
       'Thống kê điểm danh',
       'cellular-outline',
-      undefined,
+      'DiemDanh',
       undefined,
       '#F5A623',
     ),
@@ -54,13 +56,16 @@ const Home = () => {
       '#50E3C2',
     ),
   ];
+  const hoten =
+    dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || 'THIẾU TÊN';
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Mảng xanh phía trên */}
       <View style={styles.header}>
         <Text
           style={{fontSize: 30, color: 'white', marginTop: 35, marginLeft: 20}}>
-          Xin chào, Nguyễn Kế Bảo
+          Xin chào, <Text style={{fontWeight: 'bold'}}>{hoten}</Text>
         </Text>
       </View>
 
@@ -110,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly', // Chia đều khoảng cách giữa các ô
   },
   header: {
-    backgroundColor: '#1bcdff',
+    backgroundColor: '#0a66b1',
     top: 0,
     left: 0,
     right: 0,

@@ -18,3 +18,19 @@ export class MonHoc {
     this.giangVien = giangVien;
   }
 }
+export const dsMonHoc: MonHoc[] = [
+  new MonHoc(
+    'MH01',
+    'Kiểm định phần mềm',
+    '7 - 12',
+    'A107 - 140 Lê Trọng Tấn',
+    'Nguyễn Thị Bích Ngân',
+  ),
+  new MonHoc(
+    'MH02',
+    'Lập trình di động',
+    '13 - 17',
+    'A108 - 140 Lê Trọng Tấn',
+    'Trần Văn Bảo',
+  ),
+];
