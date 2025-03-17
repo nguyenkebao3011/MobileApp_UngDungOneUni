@@ -10,6 +10,7 @@ import DieuKhoan from './source/screens/DieuKhoan';
 import GopY from './source/screens/GopY';
 import LichHocScreen from './source/screens/LichHocScreen';
 import DiemDanhScreen from './source/screens/DiemDanhScreen';
+import XemDiemScreen from './source/screens/XemDiemScreen';
 
 export type RootStackParamList = {
   DangNhap: undefined;
@@ -43,6 +44,7 @@ const App = () => {
           <Stack.Screen name="GopY" component={GopY} />
           <Stack.Screen name="LichHoc" component={LichHocScreen} />
           <Stack.Screen name="DiemDanh" component={DiemDanhScreen} />
+          <Stack.Screen name="XemDiem" component={XemDiemScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </>

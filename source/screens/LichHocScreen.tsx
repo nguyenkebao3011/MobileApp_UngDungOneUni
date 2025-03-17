@@ -7,72 +7,114 @@ import {
   Dimensions,
   FlatList,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import getFormattedDate from '../components/Date/GetDay';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {useState} from 'react';
-import {dsLichHoc} from '../components/Class/LichHoc';
-import {dsMonHoc} from '../components/Class/MonHoc';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../App';
 import {StackNavigationProp} from '@react-navigation/stack';
+import axios from 'axios';
+import {masinhvien} from './DangNhapScreen';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
+
 const {width} = Dimensions.get('window');
+
+interface LichHoc {
+  NgayHoc: string;
+  MonHoc: string;
+  TietHoc: string;
+  PhongHoc: string;
+}
+
 const LichHocScreen = () => {
+  const [data, setData] = useState<LichHoc[]>([]);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const onChange = (_event, selectedDate) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const navigation = useNavigation<NavigationProp>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get('http://192.168.0.123:3000/lichhoc', {
+          params: {
+            MaSV: masinhvien,
+          },
+        });
+        console.log('API Response:', response.data);
+
+        if (response.data.status === 'Thành công') {
+          setData(response.data.data);
+        } else {
+          setError('Không có dữ liệu lịch học.');
+        }
+      } catch (err) {
+        setError('Lỗi khi lấy dữ liệu từ máy chủ.');
+        console.error('Lỗi khi lấy dữ liệu:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Hiển thị DateTimePicker
+  const showDatePicker = () => setShowPicker(true);
+
+  // Xử lý khi chọn ngày
+  const onChange = (event: any, selectedDate?: Date) => {
+    setShowPicker(false);
     if (selectedDate) {
       setDate(selectedDate);
     }
-    setShowPicker(false); // Ẩn DateTimePicker sau khi chọn
   };
 
-  const showDatePicker = () => {
-    setShowPicker(true);
-  };
+  // Lọc dữ liệu theo ngày đã chọn
+  const filteredData = data.filter(item => {
+    const itemDate = new Date(item.NgayHoc).toDateString();
+    const selectedDate = date.toDateString();
+    return itemDate === selectedDate;
+  });
 
-  const filteredLichHoc = dsLichHoc
-    .filter(lich => {
-      const selectedDate = new Date(date).setHours(0, 0, 0, 0);
-      const ngayHoc = new Date(lich.ngayHoc).setHours(0, 0, 0, 0);
-      return ngayHoc === selectedDate;
-    })
-    .flatMap(lich => lich.maMH.map(ma => dsMonHoc.find(mh => mh.maMH === ma)))
-    .filter(monHoc => monHoc !== undefined);
-  const renderItem = ({item}) => (
+  // Render item trong FlatList
+  const renderItem = ({item}: {item: LichHoc}) => (
     <View style={styles.card}>
-      <Text style={styles.subjectTitle}>{item?.tenMH}</Text>
+      <Text style={styles.subjectTitle}>{item.MonHoc}</Text>
       <Text style={styles.subjectDetail}>
-        <Text style={styles.label}>Tiết:</Text> {item?.tiet}
+        <Text style={styles.label}>Tiết học:</Text> {item.TietHoc}
       </Text>
       <Text style={styles.subjectDetail}>
-        <Text style={styles.label}>Phòng:</Text> {item?.phong}
+        <Text style={styles.label}>Phòng học:</Text> {item.PhongHoc}
       </Text>
       <Text style={styles.subjectDetail}>
-        <Text style={styles.label}>Giảng viên:</Text>{' '}
-        <Text style={{fontWeight: 'bold'}}>{item?.giangVien}</Text>
+        <Text style={styles.label}>Ngày học:</Text>{' '}
+        {getFormattedDate(new Date(item.NgayHoc))}
       </Text>
     </View>
   );
-  const navigation = useNavigation<NavigationProp>();
+
   return (
     <ScrollView>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container}>
-        {/* Header */}
+        {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon style={styles.iconback} name="arrow-back-outline"></Icon>
+            <Icon style={styles.iconback} name="arrow-back-outline" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Lịch học/lịch thi</Text>
+          <Text style={styles.headerTitle}>Lịch học/Lịch thi</Text>
         </View>
 
-        {/* Date Picker */}
+        {/* CHỌN NGÀY */}
         <TouchableOpacity style={styles.tabDate} onPress={showDatePicker}>
           <Text style={{fontSize: 18, fontWeight: 'bold'}}>
             {getFormattedDate(date)}
@@ -80,6 +122,7 @@ const LichHocScreen = () => {
           <Icon name="caret-down-outline" size={18} color="black" />
         </TouchableOpacity>
 
+        {/* DateTimePicker */}
         {showPicker && (
           <DateTimePicker
             value={date}
@@ -89,16 +132,22 @@ const LichHocScreen = () => {
           />
         )}
 
-        {/* Danh sách môn học */}
-        <FlatList
-          data={filteredLichHoc}
-          keyExtractor={(_item, index) => index.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
-          ListEmptyComponent={
-            <Text style={styles.noDataText}>Không có lịch học nào</Text>
-          }
-        />
+        {/* HIỂN THỊ DỮ LIỆU */}
+        {loading ? (
+          <Text style={styles.noDataText}>Đang tải dữ liệu...</Text>
+        ) : error ? (
+          <Text style={styles.noDataText}>{error}</Text>
+        ) : (
+          <FlatList
+            data={filteredData}
+            keyExtractor={item => item.NgayHoc}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+            ListEmptyComponent={
+              <Text style={styles.noDataText}>Không có lịch học nào</Text>
+            }
+          />
+        )}
       </SafeAreaView>
     </ScrollView>
   );
@@ -121,20 +170,21 @@ const styles = StyleSheet.create({
     height: 100,
     backgroundColor: '#0064e0',
     zIndex: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tabDate: {
     flexDirection: 'row',
     backgroundColor: '#eef3f7',
-    color: '#7d8b9b',
+    padding: 10,
     borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 15,
   },
   headerTitle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
     fontSize: 25,
     color: 'white',
-    marginRight: 30,
   },
   listContainer: {
     paddingVertical: 20,
@@ -153,28 +203,24 @@ const styles = StyleSheet.create({
   subjectTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#2d3436',
     marginBottom: 5,
   },
   subjectDetail: {
     fontSize: 14,
-    color: 'black',
     marginBottom: 3,
   },
   noDataText: {
     fontSize: 16,
-    color: '#7d8b9b',
     textAlign: 'center',
     marginTop: 20,
   },
   label: {
     fontWeight: 'bold',
-    color: '#2d3436',
   },
   iconback: {
-    marginTop: 40,
     fontSize: 25,
     color: 'white',
-    marginLeft: 20,
+    marginRight: 350,
+    marginTop: 30,
   },
 });

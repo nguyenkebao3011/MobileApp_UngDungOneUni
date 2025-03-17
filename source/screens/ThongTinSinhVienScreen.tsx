@@ -5,36 +5,62 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {dsSinhVien, SinhVien} from '../components/Class/SinhVien';
+import {SinhVien} from '../components/Class/SinhVien';
 import {masinhvien} from './DangNhapScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
 import {useNavigation} from '@react-navigation/native';
+import axios from 'axios';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 const ThongTinSinhVienScreen = () => {
-  const sinhVien = dsSinhVien.find(sv => sv.MaSV === masinhvien);
-  const thongtin = new SinhVien(
-    sinhVien?.MaSV ?? '',
-    sinhVien?.HoTen ?? '',
-    sinhVien?.NgaySinh ?? new Date(),
-    sinhVien?.GioiTinh ?? '',
-    sinhVien?.Khoa ?? '',
-    sinhVien?.Lop ?? '',
-    sinhVien?.BacDaoTao ?? '',
-    sinhVien?.LoaiHinhDaoTao ?? '',
-    sinhVien?.KhoaHoc ?? '',
-    sinhVien?.Nganh ?? '',
-    sinhVien?.ChuyenNganh ?? '',
-    sinhVien?.NoiSinh ?? '',
-    sinhVien?.DiaChi ?? '',
-    sinhVien?.SoDienThoai ?? '',
-    sinhVien?.TrangThai ?? '',
-    sinhVien?.MatKhauDN ?? '',
-  );
+  const [thongtin, setThongtin] = useState<SinhVien>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          'http://192.168.0.123:3000/sinhvien/search',
+          {
+            params: {
+              column: 'MaSV',
+              value: masinhvien,
+            },
+          },
+        );
+        console.log('API Response:', response.data); // Kiểm tra dữ liệu từ API
+        if (response.data.status === 'Thành công') {
+          const data = response.data.data[0];
+          const sinhVien = new SinhVien(
+            data?.MaSV ?? '',
+            data?.HoTen ?? '',
+            data?.NgaySinh ? new Date(data?.NgaySinh) : new Date(),
+            data?.GioiTinh ?? '',
+            data?.TenKhoa ?? '',
+            data?.TenLop ?? '',
+            data?.BacDaoTao ?? '',
+            data?.LoaiHinhDaoTao ?? '',
+            data?.KhoaHoc ?? '',
+            data?.TenNganh ?? '',
+            data?.NoiSinh ?? '',
+            data?.DiaChi ?? '',
+            data?.SoDienThoai ?? '',
+            data?.TrangThai ?? '',
+            data?.TenChuyenNganh ?? '',
+          );
+          setThongtin(sinhVien);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+      }
+    };
+
+    fetchData(); // Gọi hàm lấy dữ liệu khi component được render
+  }, []);
+
   const navigation = useNavigation<NavigationProp>();
   return (
     <ScrollView>
@@ -65,65 +91,65 @@ const ThongTinSinhVienScreen = () => {
               marginTop: 30,
               textAlign: 'center',
             }}>
-            {thongtin.HoTen}
+            {thongtin?.HoTen}
           </Text>
           <View style={styles.row}>
             <Text style={styles.labelText}>Mã sinh viên:</Text>
-            <Text style={styles.infoText}>{thongtin.MaSV}</Text>
+            <Text style={styles.infoText}>{thongtin?.MaSV}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Ngày sinh:</Text>
             <Text style={styles.infoText}>
-              {thongtin.NgaySinh?.toLocaleDateString('vi-VN')}
+              {thongtin?.NgaySinh?.toLocaleDateString('vi-VN')}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Giới tính:</Text>
-            <Text style={styles.infoText}>{thongtin.GioiTinh}</Text>
+            <Text style={styles.infoText}>{thongtin?.GioiTinh}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Khoa:</Text>
-            <Text style={styles.infoText}>{thongtin.Khoa}</Text>
+            <Text style={styles.infoText}>{thongtin?.TenKhoa}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Lớp:</Text>
-            <Text style={styles.infoText}>{thongtin.Lop}</Text>
+            <Text style={styles.infoText}>{thongtin?.TenLop}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Bậc đào tạo:</Text>
-            <Text style={styles.infoText}>{thongtin.BacDaoTao}</Text>
+            <Text style={styles.infoText}>{thongtin?.BacDaoTao}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Loại hình đào tạo:</Text>
-            <Text style={styles.infoText}>{thongtin.LoaiHinhDaoTao}</Text>
+            <Text style={styles.infoText}>{thongtin?.LoaiHinhDaoTao}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Khóa học:</Text>
-            <Text style={styles.infoText}>{thongtin.KhoaHoc}</Text>
+            <Text style={styles.infoText}>{thongtin?.KhoaHoc}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Ngành:</Text>
-            <Text style={styles.infoText}>{thongtin.Nganh}</Text>
+            <Text style={styles.infoText}>{thongtin?.TenNganh}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Chuyên ngành:</Text>
-            <Text style={styles.infoText}>{thongtin.ChuyenNganh}</Text>
+            <Text style={styles.infoText}>{thongtin?.TenChuyenNganh}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Nơi sinh:</Text>
-            <Text style={styles.infoText}>{thongtin.NoiSinh}</Text>
+            <Text style={styles.infoText}>{thongtin?.NoiSinh}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Địa chỉ:</Text>
-            <Text style={styles.infoText}>{thongtin.DiaChi}</Text>
+            <Text style={styles.infoText}>{thongtin?.DiaChi}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Số điện thoại:</Text>
-            <Text style={styles.infoText}>{thongtin.SoDienThoai}</Text>
+            <Text style={styles.infoText}>{thongtin?.SoDienThoai}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.labelText}>Trạng thái:</Text>
-            <Text style={styles.infoText}>{thongtin.TrangThai}</Text>
+            <Text style={styles.infoText}>{thongtin?.TrangThai}</Text>
           </View>
         </View>
       </SafeAreaView>

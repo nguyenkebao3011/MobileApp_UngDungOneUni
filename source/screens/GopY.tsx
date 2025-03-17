@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   input: {
-    width: '100%', // Đảm bảo input rộng theo container
+    width: '100%',
     height: 150,
     borderColor: '#ccc',
     borderWidth: 1,

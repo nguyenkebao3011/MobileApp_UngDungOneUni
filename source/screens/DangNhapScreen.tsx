@@ -15,23 +15,54 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../App';
 import Icon from 'react-native-vector-icons/Fontisto';
-import {dsSinhVien} from '../components/Class/SinhVien';
+// import {dsSinhVien} from '../components/Class/SinhVien';
 type NavigationProp = StackNavigationProp<RootStackParamList, 'DangNhap'>;
 export let masinhvien = '';
 const DangNhapScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const checkTK = () => {
-    const user = dsSinhVien.find(
-      u => u.MaSV === username && u.MatKhauDN === password,
-    );
-    if (user) {
-      Alert.alert('Đăng nhập thành công');
-      masinhvien = username;
-      navigation.navigate('Main');
-    } else {
-      Alert.alert('Kiểm tra lại thông tin');
+  // Xử lý đăng nhập
+  const checkTK = async () => {
+    // const user = dsSinhVien.find(
+    //   u => u.MaSV === username && u.MatKhauDN === password,
+    // );
+    // if (user) {
+    //   Alert.alert('Đăng nhập thành công');
+    //   masinhvien = username;
+    //   navigation.navigate('Main');
+    // } else {
+    //   Alert.alert('Kiểm tra lại thông tin');
+    // }
+    if (!username || !password) {
+      Alert.alert('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://192.168.0.123:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          MaSV: username,
+          MatKhauDangNhap: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        Alert.alert('Đăng nhập thành công');
+        masinhvien = username;
+        navigation.navigate('Main');
+      } else {
+        Alert.alert(data.status);
+      }
+    } catch (error) {
+      console.error('Lỗi khi đăng nhập:', error);
+      Alert.alert('Đã xảy ra lỗi. Vui lòng thử lại.');
     }
   };
 

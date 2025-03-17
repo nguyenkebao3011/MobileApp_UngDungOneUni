@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   StatusBar,
+  Alert,
 } from 'react-native';
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -15,14 +16,16 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
 import {masinhvien} from './DangNhapScreen';
-import {dsSinhVien} from '../components/Class/SinhVien';
+
+import axios from 'axios';
 
 const Tab = createBottomTabNavigator();
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 const Home = () => {
+  const [hoTen, setHoTen] = useState('');
   const navigation = useNavigation<NavigationProp>();
   const ListChucNang: ChucNang[] = [
-    new ChucNang(7, 'Xem điểm', 'star', undefined, undefined, '#4A90E2'),
+    new ChucNang(7, 'Xem điểm', 'star', 'XemDiem', undefined, '#4A90E2'),
     new ChucNang(
       8,
       'Lịch học/Lịch thi',
@@ -56,16 +59,38 @@ const Home = () => {
       '#50E3C2',
     ),
   ];
-  const hoten =
-    dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || 'THIẾU TÊN';
-
+  // const hoten =
+  //   dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || 'THIẾU TÊN';
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `http://192.168.0.123:3000/sinhvien/search`,
+          {
+            params: {
+              column: 'MaSV', // Tìm theo mã sinh viên
+              value: masinhvien,
+            },
+          },
+        );
+        if (response.data.status === 'Thành công') {
+          const data = response.data.data[0];
+          setHoTen(data.HoTen);
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể lấy thông tin sinh viên');
+        console.error('Lỗi khi lấy thông tin sinh viên:', error);
+      }
+    };
+    fetchData();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       {/* Mảng xanh phía trên */}
       <View style={styles.header}>
         <Text
           style={{fontSize: 30, color: 'white', marginTop: 35, marginLeft: 20}}>
-          Xin chào, <Text style={{fontWeight: 'bold'}}>{hoten}</Text>
+          Xin chào, <Text style={{fontWeight: 'bold'}}>{hoTen}</Text>
         </Text>
       </View>
 

@@ -5,16 +5,17 @@ import {
   TouchableOpacity,
   View,
   Switch,
+  Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ChucNang} from '../components/Class/ChucNang';
-import {dsSinhVien} from '../components/Class/SinhVien';
 import {masinhvien} from './DangNhapScreen';
+import axios from 'axios';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -22,6 +23,8 @@ const CaNhanScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   const navigation = useNavigation<NavigationProp>();
+  const [hoTen, setHoTen] = useState<string>('');
+
   const ListClass: ChucNang[] = [
     new ChucNang(
       1,
@@ -72,7 +75,30 @@ const CaNhanScreen = () => {
       '#e7303b',
     ),
   ];
-  const hoten = dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || '';
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `http://192.168.0.123:3000/sinhvien/search`,
+          {
+            params: {
+              column: 'MaSV', // Tìm theo mã sinh viên
+              value: masinhvien,
+            },
+          },
+        );
+        if (response.data.status === 'Thành công') {
+          const data = response.data.data[0];
+          setHoTen(data.HoTen);
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể lấy thông tin sinh viên');
+        console.error('Lỗi khi lấy thông tin sinh viên:', error);
+      }
+    };
+    fetchData();
+  }, []);
+  // const hoten = dsSinhVien.find(ma => ma.MaSV === masinhvien)?.HoTen || '';
   return (
     <SafeAreaView style={styles.container}>
       {/* Mảng xanh phía trên */}
@@ -88,7 +114,7 @@ const CaNhanScreen = () => {
             marginTop: 35,
             fontWeight: 'bold',
           }}>
-          {hoten}
+          {hoTen}
         </Text>
         <Text style={{marginLeft: 30, fontSize: 18, color: 'white'}}>
           MSSV: {masinhvien}
